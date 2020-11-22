@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import bootcampsRoutes from './routes/bootcampsRoutes.js';
+import bootcampRoutes from './routes/bootcampRoutes.js';
 // import { logger } from './middleware/logger.js';
 import morgan from 'morgan';
 import connectDB from './config/db.js';
@@ -9,6 +9,9 @@ dotenv.config();
 
 const app = express();
 
+// Body parser
+app.use(express.json());
+
 // connect to DB
 connectDB();
 
@@ -16,7 +19,7 @@ connectDB();
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 // Mount routes
-app.use('/api/v1/bootcamps', bootcampsRoutes);
+app.use('/api/v1/bootcamps', bootcampRoutes);
 
 const PORT = process.env.PORT || 5000;
 
