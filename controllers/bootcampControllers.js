@@ -1,4 +1,5 @@
 import Bootcamp from '../models/bootcampModel.js';
+import ErrorResponse from '../utils/ErrorResponse.js';
 // @desc        Get all bootcamps
 // @route       GET /api/v1/bootcamps
 // @access      Public
@@ -26,17 +27,20 @@ const getBootcamp = async (req, res, next) => {
     const bootcamp = await Bootcamp.findById(req.params.id);
     // This if statement handles the caes when the id is a valid ObjectId by there is no bootcamp with that id. The catch block deals with the case where the id is not a valid ObjectId
     if (!bootcamp) {
-      return res.status(400).json({ success: false });
+      return next(
+        new ErrorResponse(`Bootcamp with id ${req.params.id} not found`, 404)
+      );
     }
     res.status(200).json({
       success: true,
       data: bootcamp,
     });
   } catch (error) {
-    console.error(error.message);
-    res.status(400).json({
-      success: false,
-    });
+    next(error);
+    // console.error(error.message);
+    // res.status(400).json({
+    //   success: false,
+    // });
   }
 };
 
@@ -51,10 +55,11 @@ const createBootcamp = async (req, res, next) => {
       data: bootcamp,
     });
   } catch (error) {
-    console.error(error.message);
-    res.status(400).json({
-      success: false,
-    });
+    next(error);
+    // console.error(error.message);
+    // res.status(400).json({
+    //   success: false,
+    // });
   }
 };
 
@@ -72,14 +77,17 @@ const updateBootcamp = async (req, res, next) => {
       }
     );
 
-    if (!updateBootcamp) {
-      return res.status(400).json({ success: false });
+    if (!updatedBootcamp) {
+      return next(
+        new ErrorResponse(`Bootcamp with id ${req.params.id} not found`, 404)
+      );
     }
 
     res.status(200).json({ success: true, data: updatedBootcamp });
   } catch (error) {
-    console.error(error.message);
-    res.status(400).json({ success: false });
+    next(error);
+    // console.error(error.message);
+    // res.status(400).json({ success: false });
   }
 };
 
@@ -91,13 +99,16 @@ const deleteBootcamp = async (req, res, next) => {
     const deletedBootcamp = await Bootcamp.findByIdAndDelete(req.params.id);
 
     if (!deletedBootcamp) {
-      return res.status(400).json({ success: false });
+      return next(
+        new ErrorResponse(`Bootcamp with id ${req.params.id} not found`, 404)
+      );
     }
 
     res.status(200).json({ success: true, data: {} });
   } catch (error) {
-    console.error(error.message);
-    res.status(400).json({ success: false });
+    next(error);
+    // console.error(error.message);
+    // res.status(400).json({ success: false });
   }
 };
 
