@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import slugify from 'slugify';
+import geocoder from '../utils/geocoder.js';
 const { Schema } = mongoose;
 
 const bootcampSchema = new Schema({
@@ -102,6 +103,23 @@ const bootcampSchema = new Schema({
 
 bootcampSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+bootcampSchema.pre('save', async function (next) {
+  const loc = await geocoder.geocode(this.address);
+  this.location = {
+    type: 'Point',
+    coordinates: [loc[0].longitude, loc[0].latitude],
+    formattedAddress: loc[0].formattedAddress,
+    street: loc[0].streetName,
+    city: loc[0].city,
+    zipcode: loc[0].zipCode,
+    state: loc[0].stateCode,
+    country: loc[0].countryCode,
+  };
+  //we have formattedAddress in location, so we don't need the address field
+  this.address = undefined;
   next();
 });
 
