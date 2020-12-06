@@ -1,4 +1,5 @@
 import express from 'express';
+import courseRoutes from './courseRoutes.js';
 import {
   createBootcamp,
   deleteBootcamp,
@@ -7,7 +8,10 @@ import {
   getBootcampsInRadius,
   updateBootcamp,
 } from '../controllers/bootcampControllers.js';
+
 const router = express.Router();
+// Re-route this link to courseRouter
+router.use('/:bootcampId/courses', courseRoutes);
 
 router.route('/').get(getBootcamps).post(createBootcamp);
 router

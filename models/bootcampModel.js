@@ -123,6 +123,6 @@ bootcampSchema.pre('save', async function (next) {
   next();
 });
 
-const Bootcamp = mongoose.model('Bootcamps', bootcampSchema);
+const Bootcamp = mongoose.model('Bootcamp', bootcampSchema);
 
 export default Bootcamp;

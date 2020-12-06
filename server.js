@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import bootcampRoutes from './routes/bootcampRoutes.js';
+import courseRoutes from './routes/courseRoutes.js';
 // import { logger } from './middleware/logger.js';
 import morgan from 'morgan';
 import connectDB from './config/db.js';
@@ -21,6 +22,7 @@ if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 // Mount routes
 app.use('/api/v1/bootcamps', bootcampRoutes);
+app.use('/api/v1/courses', courseRoutes);
 
 // cutom error handler
 app.use(errorHandler);
