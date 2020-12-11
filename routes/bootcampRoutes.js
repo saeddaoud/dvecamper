@@ -1,6 +1,7 @@
 import express from 'express';
 import courseRoutes from './courseRoutes.js';
 import {
+  bootcampPhotoUpload,
   createBootcamp,
   deleteBootcamp,
   getBootcamp,
@@ -20,5 +21,6 @@ router
   .put(updateBootcamp)
   .delete(deleteBootcamp);
 router.route('/radius/:zipcode/:distance').get(getBootcampsInRadius);
+router.route('/:id/photo').put(bootcampPhotoUpload);
 
 export default router;
