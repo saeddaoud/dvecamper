@@ -10,11 +10,17 @@ import {
   updateBootcamp,
 } from '../controllers/bootcampControllers.js';
 
+import advancedResults from '../middleware/advancedResults.js';
+import Bootcamp from '../models/bootcampModel.js';
+
 const router = express.Router();
 // Re-route this link to courseRouter
 router.use('/:bootcampId/courses', courseRoutes);
 
-router.route('/').get(getBootcamps).post(createBootcamp);
+router
+  .route('/')
+  .get(advancedResults(Bootcamp, 'courses'), getBootcamps)
+  .post(createBootcamp);
 router
   .route('/:id')
   .get(getBootcamp)
