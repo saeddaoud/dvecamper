@@ -1,13 +1,14 @@
 import path from 'path';
 import express from 'express';
 import dotenv from 'dotenv';
+import morgan from 'morgan';
+import fileUpload from 'express-fileupload';
+
 import bootcampRoutes from './routes/bootcampRoutes.js';
 import courseRoutes from './routes/courseRoutes.js';
-// import { logger } from './middleware/logger.js';
-import morgan from 'morgan';
 import connectDB from './config/db.js';
 import errorHandler from './middleware/errorMiddleware.js';
-import fileUpload from 'express-fileupload';
+import authRoutes from './routes/authRoutes.js';
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ app.use(fileUpload());
 // Mount routes
 app.use('/api/v1/bootcamps', bootcampRoutes);
 app.use('/api/v1/courses', courseRoutes);
+app.use('/api/v1/auth', authRoutes);
 
 // cutom error handler
 app.use(errorHandler);
