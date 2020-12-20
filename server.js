@@ -3,6 +3,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
 import fileUpload from 'express-fileupload';
+import cookieParser from 'cookie-parser';
 
 import bootcampRoutes from './routes/bootcampRoutes.js';
 import courseRoutes from './routes/courseRoutes.js';
@@ -16,6 +17,9 @@ const app = express();
 
 // Body parser
 app.use(express.json());
+
+// Cookie parser
+app.use(cookieParser());
 
 // connect to DB
 connectDB();
