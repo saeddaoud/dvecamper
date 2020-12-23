@@ -31,7 +31,19 @@ const getBootcamp = asyncHandler(async (req, res, next) => {
 // @route       POST /api/v1/bootcamps
 // @access      Private
 const createBootcamp = asyncHandler(async (req, res, next) => {
-  const bootcamp = await Bootcamp.create(req.body);
+  // Check if the logged in user is not an admin, and has already published a bootcamp. If yes, return an error message. Else, create the bootcamp
+
+  const publishedBootcamp = await Bootcamp.findOne({ user: req.user.id });
+  if (publishedBootcamp && req.user.role !== 'admin') {
+    return next(
+      new ErrorResponse(
+        'User has already published the limit of one bootcamp',
+        400
+      )
+    );
+  }
+
+  const bootcamp = await Bootcamp.create({ user: req.user.id, ...req.body });
   res.status(201).json({
     success: true,
     data: bootcamp,

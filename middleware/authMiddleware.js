@@ -29,7 +29,6 @@ export const protect = asyncHandler(async (req, res, next) => {
 
 // Authorize role
 export const authorize = (...roles) => (req, res, next) => {
-  console.log(roles, req.user.role);
   if (!roles.includes(req.user.role)) {
     return next(
       new ErrorResponse(
