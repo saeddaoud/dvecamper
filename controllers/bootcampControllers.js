@@ -54,37 +54,56 @@ const createBootcamp = asyncHandler(async (req, res, next) => {
 // @route       PUT /api/v1/bootcamps/:id
 // @access      Private
 const updateBootcamp = asyncHandler(async (req, res, next) => {
-  const updatedBootcamp = await Bootcamp.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
+  let bootcamp = await Bootcamp.findById(req.params.id);
 
-  if (!updatedBootcamp) {
+  if (!bootcamp) {
     return next(
       new ErrorResponse(`Bootcamp with id ${req.params.id} not found`, 404)
     );
   }
 
-  res.status(200).json({ success: true, data: updatedBootcamp });
+  // Check if the logged in user is the owner of the bootcamp and that he/she is not an admin
+  if (bootcamp.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    return next(
+      new ErrorResponse(
+        `You are not the owner of this bootcamp. Action is not allowed`,
+        401
+      )
+    );
+  }
+
+  // Update the bootcamp
+  bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({ success: true, data: bootcamp });
 });
 
 // @desc        Delete bootcamp
 // @route       DELETE /api/v1/bootcamps/:id
 // @access      Private
 const deleteBootcamp = asyncHandler(async (req, res, next) => {
-  const deletedBootcamp = await Bootcamp.findById(req.params.id);
+  const bootcamp = await Bootcamp.findById(req.params.id);
 
-  if (!deletedBootcamp) {
+  if (!bootcamp) {
     return next(
       new ErrorResponse(`Bootcamp with id ${req.params.id} not found`, 404)
     );
   }
 
-  deletedBootcamp.remove();
+  // Check if the logged in user is the owner of the bootcamp and that he/she is not an admin
+  if (bootcamp.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    return next(
+      new ErrorResponse(
+        `You are not the owner of this bootcamp. Action is not allowed`,
+        401
+      )
+    );
+  }
+
+  bootcamp.remove();
 
   res.status(200).json({ success: true, data: {} });
 });
@@ -122,6 +141,17 @@ const bootcampPhotoUpload = asyncHandler(async (req, res, next) => {
       new ErrorResponse(`Bootcamp with id ${req.params.id} not found`, 404)
     );
   }
+
+  // Check if the logged in user is the owner of the bootcamp and that he/she is not an admin
+  if (bootcamp.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    return next(
+      new ErrorResponse(
+        `You are not the owner of this bootcamp. Action is not allowed`,
+        401
+      )
+    );
+  }
+
   // Check if a file is uploaded
   if (!req.files) {
     return next(new ErrorResponse(`Please upload photo`, 400));
