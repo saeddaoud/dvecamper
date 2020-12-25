@@ -45,6 +45,7 @@ const getCourseById = asyncHandler(async (req, res, next) => {
 // @access      Private
 const addCourse = asyncHandler(async (req, res, next) => {
   req.body.bootcamp = req.params.bootcampId;
+  req.body.user = req.user.id;
 
   const bootcamp = await Bootcamp.findById(req.params.bootcampId);
 
@@ -53,6 +54,16 @@ const addCourse = asyncHandler(async (req, res, next) => {
       new ErrorResponse(
         `No bootcamp found with id ${req.params.bootcampId}`,
         404
+      )
+    );
+  }
+
+  // Check if the logged in user is the owner of the bootcamp to which the course is being added, and that he/she is not an admin
+  if (bootcamp.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    return next(
+      new ErrorResponse(
+        `You are not the owner of this bootcamp. Action is not allowed`,
+        401
       )
     );
   }
@@ -69,23 +80,29 @@ const addCourse = asyncHandler(async (req, res, next) => {
 // @route       PUT /api/v1/courses/:id
 // @access      Private
 const updateCourse = asyncHandler(async (req, res, next) => {
-  const updatedCourse = await Course.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
+  const course = await Course.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
 
-  if (!updatedCourse) {
+  // Check if the logged in user is the owner of the course being updated, and that he/she is not an admin
+  if (course.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    return next(
+      new ErrorResponse(
+        `You are not the owner of this course. Action is not allowed`,
+        401
+      )
+    );
+  }
+
+  if (!course) {
     return next(
       new ErrorResponse(`No course found with id ${req.params.id}`, 404)
     );
   }
   res.status(200).json({
     success: true,
-    data: updatedCourse,
+    data: course,
   });
 });
 
@@ -101,7 +118,17 @@ const deleteCourse = asyncHandler(async (req, res, next) => {
     );
   }
 
-  const deletedCourse = await course.remove();
+  // Check if the logged in user is the owner of the course being deleted, and that he/she is not an admin
+  if (course.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    return next(
+      new ErrorResponse(
+        `You are not the owner of this course. Action is not allowed`,
+        401
+      )
+    );
+  }
+
+  await course.remove();
 
   res.status(200).json({
     success: true,
