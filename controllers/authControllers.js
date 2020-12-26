@@ -39,6 +39,37 @@ const login = asyncHandler(async (req, res, next) => {
 
 export { register, login };
 
+// @desc        Get logged-in user
+// @route       POST /api/v1/auth/me
+// @access      Private
+export const getLoggedInUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});
+
+// @desc        Forgot password
+// @route       POST /api/v1/auth/forgotpassword
+// @access      public
+export const forgotPassword = asyncHandler(async (req, res, next) => {
+  const user = await User.findOne({ email: req.body.email });
+
+  if (!user) {
+    return next(new ErrorResponse('There is no user with this email', 404));
+  }
+
+  user.getResetPasswordToken();
+
+  await user.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});
+
 const sendTokenResponse = (user, statusCode, res) => {
   const token = user.getSignedJwtToken();
 
@@ -58,14 +89,3 @@ const sendTokenResponse = (user, statusCode, res) => {
     token,
   });
 };
-
-// @desc        Get logged-in user
-// @route       POST /api/v1/auth/me
-// @access      Private
-export const getLoggedInUser = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id);
-  res.status(200).json({
-    success: true,
-    data: user,
-  });
-});
