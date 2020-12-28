@@ -1,6 +1,7 @@
 import asyncHandler from '../middleware/asyncHandler.js';
 import ErrorResponse from '../utils/errorResponse.js';
 import User from '../models/userModel.js';
+import sendEmail from '../utils/sendEmail.js';
 
 // @desc        Register a new user
 // @route       POST /api/v1/auth/register
@@ -60,14 +61,41 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('There is no user with this email', 404));
   }
 
-  user.getResetPasswordToken();
+  const resetToken = user.getResetPasswordToken();
 
   await user.save({ validateBeforeSave: false });
 
-  res.status(200).json({
-    success: true,
-    data: user,
-  });
+  // Create reset url
+  const resetUrl = `${req.protocol}://${req.get(
+    'host'
+  )}/api/v1/resetpassword/${resetToken}`;
+
+  const message = `You have received this email because you or someone else requested to reset the password. Please put a PUT request to:
+  ${resetUrl}
+  `;
+
+  try {
+    await sendEmail({
+      email: user.email,
+      message,
+      subject: 'Reset Password',
+    });
+
+    res.status(200).json({ success: true, data: 'Email sent' });
+  } catch (error) {
+    console.error(error);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save({ validateBeforeSave: false });
+
+    return next(new ErrorResponse("Email couldn't be sent", 500));
+  }
+
+  // res.status(200).json({
+  //   success: true,
+  //   data: user,
+  // });
 });
 
 const sendTokenResponse = (user, statusCode, res) => {
