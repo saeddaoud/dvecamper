@@ -52,6 +52,45 @@ export const getLoggedInUser = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @desc        Update user's details (only emal and name)
+// @route       PUT /api/v1/auth/updatedetails
+// @access      Private
+export const updateDetails = asyncHandler(async (req, res, next) => {
+  const findUser = await User.findById(req.user.id);
+
+  const fieldsToUpdate = {
+    name: req.body.name ? req.body.name : findUser.name,
+    email: req.body.email ? req.body.email : findUser.email,
+  };
+  const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
+    new: true,
+    runValidators: true,
+  });
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});
+
+// @desc        Update logged-in user's password
+// @route       PUT /api/v1/auth/updatepassword
+// @access      Private
+export const updatePassword = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
+  const user = await User.findById(req.user.id).select('+password');
+  // Check if the current password sent by the user mathes that in the database to allow the logged in user update their password
+  if (!(await user.matchPassword(req.body.currentPassword))) {
+    return next(new ErrorResponse('Incorrent password', 401));
+  }
+
+  console.log(req.body);
+
+  user.password = req.body.newPassword;
+  await user.save();
+
+  sendTokenResponse(user, 200, res);
+});
+
 // @desc        Forgot password
 // @route       POST /api/v1/auth/forgotpassword
 // @access      public
