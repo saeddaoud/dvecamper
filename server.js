@@ -10,6 +10,7 @@ import courseRoutes from './routes/courseRoutes.js';
 import connectDB from './config/db.js';
 import errorHandler from './middleware/errorMiddleware.js';
 import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ app.use(fileUpload());
 app.use('/api/v1/bootcamps', bootcampRoutes);
 app.use('/api/v1/courses', courseRoutes);
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/users', userRoutes);
 
 // cutom error handler
 app.use(errorHandler);
