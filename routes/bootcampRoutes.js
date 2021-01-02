@@ -1,5 +1,6 @@
 import express from 'express';
 import courseRoutes from './courseRoutes.js';
+import reviewRoutes from './reviewRoutes.js';
 import {
   bootcampPhotoUpload,
   createBootcamp,
@@ -17,6 +18,7 @@ import { protect, authorize } from '../middleware/authMiddleware.js';
 const router = express.Router();
 // Re-route this link to courseRouter
 router.use('/:bootcampId/courses', courseRoutes);
+router.use('/:bootcampId/reviews', reviewRoutes);
 
 router
   .route('/')

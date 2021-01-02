@@ -3,6 +3,7 @@ import connectDB from './config/db.js';
 import Bootcamp from './models/bootcampModel.js';
 import Course from './models/courseModel.js';
 import User from './models/userModel.js';
+import Review from './models/reviewModel.js';
 import dotenv from 'dotenv';
 import path from 'path';
 
@@ -20,12 +21,16 @@ const courses = JSON.parse(
 const users = JSON.parse(
   fs.readFileSync(`${__dirname}/_data/users.json`, 'utf-8')
 );
+const reviews = JSON.parse(
+  fs.readFileSync(`${__dirname}/_data/reviews.json`, 'utf-8')
+);
 
 const importData = async () => {
   try {
     await Bootcamp.create(bootcamps);
     await Course.create(courses);
     await User.create(users);
+    await Review.create(reviews);
     console.log('Data has been imported');
     process.exit();
   } catch (error) {
@@ -37,6 +42,7 @@ const deleteData = async () => {
     await Bootcamp.deleteMany();
     await Course.deleteMany();
     await User.deleteMany();
+    await Review.deleteMany();
     console.log('Data has been deleted');
     process.exit();
   } catch (error) {
