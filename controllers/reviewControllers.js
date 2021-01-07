@@ -9,7 +9,10 @@ import ErrorResponse from '../utils/ErrorResponse.js';
 // @access      Public
 const getReviews = asyncHandler(async (req, res, next) => {
   if (req.params.bootcampId) {
-    const reviews = await Review.find({ bootcamp: req.params.bootcampId });
+    const reviews = await Review.find({
+      bootcamp: req.params.bootcampId,
+    });
+
     res.status(200).json({
       success: true,
       count: reviews.length,
@@ -60,4 +63,53 @@ const addReview = asyncHandler(async (req, res, next) => {
   });
 });
 
-export { getReviews, getReview, addReview };
+// @desc        Update a review
+// @route       PUT /api/v1/reviews/:id
+// @access      Private
+const updateReview = asyncHandler(async (req, res, next) => {
+  let review = await Review.findById(req.params.id);
+
+  if (!review) {
+    return next(new ErrorResponse('No review was found', 404));
+  }
+
+  // Check if the logged in user is the author of the review and whether he/she is an admin
+  if (review.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    return next(new ErrorResponse('Not authorized', 401));
+  }
+
+  review = await Review.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: review,
+  });
+});
+
+// @desc        Delete a review
+// @route       DELETE /api/v1/reviews/:id
+// @access      Private
+const deleteReview = asyncHandler(async (req, res, next) => {
+  const review = await Review.findById(req.params.id);
+
+  if (!review) {
+    return next(new ErrorResponse('No review was found', 404));
+  }
+
+  // Check if the logged in user is the author of the review and whether he/she is an admin
+  if (review.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    return next(new ErrorResponse('Not authorized', 401));
+  }
+
+  await review.remove();
+
+  res.status(200).json({
+    success: true,
+    data: {},
+  });
+});
+
+export { getReviews, getReview, addReview, updateReview, deleteReview };

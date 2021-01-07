@@ -5,8 +5,10 @@ import advancedResults from '../middleware/advancedResults.js';
 import { protect, authorize } from '../middleware/authMiddleware.js';
 import {
   addReview,
+  deleteReview,
   getReview,
   getReviews,
+  updateReview,
 } from '../controllers/reviewControllers.js';
 
 const router = express.Router({ mergeParams: true });
@@ -19,6 +21,10 @@ router
   )
   .post(protect, authorize('user', 'admin'), addReview);
 
-router.route('/:id').get(getReview);
+router
+  .route('/:id')
+  .get(getReview)
+  .put(protect, authorize('user', 'admin'), updateReview)
+  .delete(protect, authorize('user', 'admin'), deleteReview);
 
 export default router;
