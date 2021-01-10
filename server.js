@@ -4,6 +4,12 @@ import dotenv from 'dotenv';
 import morgan from 'morgan';
 import fileUpload from 'express-fileupload';
 import cookieParser from 'cookie-parser';
+import sanitize from 'express-mongo-sanitize';
+import helmet from 'helmet';
+import xss from 'xss-clean';
+import rateLimit from 'express-rate-limit';
+import hpp from 'hpp';
+import cors from 'cors';
 
 import bootcampRoutes from './routes/bootcampRoutes.js';
 import courseRoutes from './routes/courseRoutes.js';
@@ -22,6 +28,29 @@ app.use(express.json());
 
 // Cookie parser
 app.use(cookieParser());
+
+// Sanitize data
+app.use(sanitize());
+
+// Add security headers
+app.use(helmet());
+
+// Prevnt XSS attacks
+app.use(xss());
+
+// Enable cors
+app.use(cors());
+
+// Limit number of requests per window time
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000, //10 minutes
+  max: 100,
+});
+
+app.use(limiter);
+
+// Prevent http param pollution
+app.use(hpp());
 
 // connect to DB
 connectDB();
